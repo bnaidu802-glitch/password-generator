@@ -1,0 +1,135 @@
+import random
+import string
+
+def generate_password(length=12, use_uppercase=True, use_numbers=True, use_symbols=True):
+    """
+    Generate a random strong password.
+    
+    Args:
+        length (int): Length of the password (default: 12)
+        use_uppercase (bool): Include uppercase letters
+        use_numbers (bool): Include numbers
+        use_symbols (bool): Include special symbols
+    
+    Returns:
+        str: Generated password
+    """
+    characters = string.ascii_lowercase  # always include lowercase
+
+    if use_uppercase:
+        characters += string.ascii_uppercase
+    if use_numbers:
+        characters += string.digits
+    if use_symbols:
+        characters += string.punctuation
+
+    if not characters:
+        return "Error: No character types selected!"
+
+    password = ''.join(random.choice(characters) for _ in range(length))
+    return password
+
+
+def check_strength(password):
+    """Check how strong a password is."""
+    score = 0
+    feedback = []
+
+    if len(password) >= 8:
+        score += 1
+    else:
+        feedback.append("❌ Use at least 8 characters")
+
+    if len(password) >= 12:
+        score += 1
+    else:
+        feedback.append("⚠️  12+ characters is safer")
+
+    if any(c.isupper() for c in password):
+        score += 1
+    else:
+        feedback.append("❌ Add uppercase letters (A-Z)")
+
+    if any(c.islower() for c in password):
+        score += 1
+    else:
+        feedback.append("❌ Add lowercase letters (a-z)")
+
+    if any(c.isdigit() for c in password):
+        score += 1
+    else:
+        feedback.append("❌ Add numbers (0-9)")
+
+    if any(c in string.punctuation for c in password):
+        score += 1
+    else:
+        feedback.append("❌ Add symbols (!@#$...)")
+
+    # Determine strength label
+    if score <= 2:
+        strength = "🔴 Weak"
+    elif score <= 4:
+        strength = "🟡 Medium"
+    else:
+        strength = "🟢 Strong"
+
+    return strength, feedback
+
+
+def main():
+    print("=" * 45)
+    print("       🔐 PASSWORD GENERATOR TOOL 🔐")
+    print("=" * 45)
+
+    while True:
+        print("\nWhat would you like to do?")
+        print("1. Generate a password")
+        print("2. Check password strength")
+        print("3. Exit")
+
+        choice = input("\nEnter your choice (1/2/3): ").strip()
+
+        if choice == "1":
+            print("\n--- Generate Password ---")
+            try:
+                length = int(input("Enter password length (default 12): ") or 12)
+            except ValueError:
+                length = 12
+
+            uppercase = input("Include uppercase letters? (y/n, default y): ").lower() != 'n'
+            numbers = input("Include numbers? (y/n, default y): ").lower() != 'n'
+            symbols = input("Include symbols? (y/n, default y): ").lower() != 'n'
+
+            how_many = input("How many passwords to generate? (default 1): ").strip()
+            how_many = int(how_many) if how_many.isdigit() else 1
+
+            print(f"\n✅ Generated Password(s):")
+            print("-" * 35)
+            for i in range(how_many):
+                pwd = generate_password(length, uppercase, numbers, symbols)
+                strength, _ = check_strength(pwd)
+                print(f"  {i+1}. {pwd}  {strength}")
+            print("-" * 35)
+
+        elif choice == "2":
+            print("\n--- Check Password Strength ---")
+            pwd = input("Enter a password to check: ")
+            strength, feedback = check_strength(pwd)
+            print(f"\nStrength: {strength}")
+            if feedback:
+                print("Suggestions:")
+                for tip in feedback:
+                    print(f"  {tip}")
+            else:
+                print("✅ Great password!")
+
+        elif choice == "3":
+            print("\n👋 Goodbye! Stay secure!")
+            break
+
+        else:
+            print("⚠️  Invalid choice. Please enter 1, 2, or 3.")
+
+
+if __name__ == "__main__":
+    main()
